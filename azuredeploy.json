@@ -37,7 +37,7 @@
     }    
   },
   "variables": {
-    "pkgMLSWebApp": "[concat('https://raw.githubusercontent.com/krishnand/mlsdistcomp/master/packages/', toLower(parameters('deploymentProfile')), 'webapp.zip')]",
+    "pkgMLSWebApp": "[concat('https://raw.githubusercontent.com/krishnand/mlsdistcomp/master/packages/', toLower('participant'), 'webapp.zip')]",
     "scriptUriSql": "[uri(deployment().properties.templateLink.uri, 'scripts/mlsdistcompmin.sql')]",    
     "scriptUriWebAppDeploy": "[uri(deployment().properties.templateLink.uri, 'scripts/webappdeploy.sh')]",
     "scriptUriMLSConfigure": "[uri(deployment().properties.templateLink.uri, 'scripts/mlsconfigure.sh')]",
