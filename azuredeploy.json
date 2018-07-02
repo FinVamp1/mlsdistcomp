@@ -7,7 +7,7 @@
       "metadata": {
         "description": "MLSDistcomp package location"
       },
-      "defaultValue": "https://raw.githubusercontent.com/krishnand/mlsdistcomp/master/packages/mlsdistcomp_0.1.0.tar.gz"
+      "defaultValue": "https://raw.githubusercontent.com/finbarr/mlsdistcomp/master/packages/mlsdistcomp_0.1.0.tar.gz"
 
     },
     "webAppSvcSkuName": {
