@@ -2,145 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "aadAppMLS": {
-      "type": "string",
-      "metadata": {
-        "description": "Application ID of the Client AAD app."
-      }
-    },
-    "aadAppMLSClient": {
-      "type": "string",
-      "metadata": {
-        "description": "Application ID of the AAD app."
-      }
-    },
-    "aadAppMLSClientSecret": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The Client secret created on the AAD Client Application."
-      }
-    },
-    "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Username for the Virtual Machine."
-      },
-      "defaultValue": "mlsAdmin"
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the Virtual Machine and Operationalization. Must be 8-16 characters long and contain at least 1 uppercase character(s), 1+ lowercase character(s), 1+ number(s), and 1+ special character(s)"
-      },
-      "defaultValue": "Welcome1234!"
-    },
-    "deploymentProfile": {
-      "type": "string",
-      "defaultValue": "Participant",
-      "allowedValues": [
-        "Central",
-        "Participant"
-      ]
-    },
-    "dnsLabelPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the VM to be provisioned in the resource group. Also the prefix for related resources."
-      }
-    },    
     "pkgMLSDistcomp": {
       "type": "string",
       "metadata": {
         "description": "MLSDistcomp package location"
       },
-      "defaultValue": "https://raw.githubusercontent.com/krishnand/mlsdistcomp/master/packages/mlsdistcomp_0.1.0.tar.gz"
-    },        
-    "sqlserverAdminLogin": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "sqlAdmin"
-    },
-    "sqlserverAdminPassword": {
-      "type": "securestring",
-      "defaultValue": "Welcome1234!"
-    },
-    "sqlDatabaseNameCollation": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
-    },
-    "sqlDatabaseNameEdition": {
-      "type": "string",
-      "defaultValue": "Basic",
-      "allowedValues": [
-        "Basic",
-        "Standard",
-        "Premium"
-      ]
-    },
-    "sqlDatabaseNameRequestedServiceObjectiveName": {
-      "type": "string",
-      "defaultValue": "Basic",
-      "allowedValues": [
-        "Basic",
-        "S0",
-        "S1",
-        "S2",
-        "P1",
-        "P2",
-        "P3"
-      ],
-      "metadata": {
-        "description": "Describes the performance level for Edition"
-      }
-    },
-    "tenantName": {
-      "type": "string",
-      "metadata": {
-        "description": "Azure tenant domain. For e.g., contoso.onmicrosoft.com"
-      }
-    },
-    "vmSku": {
-      "type": "string",
-      "defaultValue": "Standard_D3_v2",
-      "allowedValues": [
-        "Standard_D2_v2",
-        "Standard_D3_v2",
-        "Standard_D4_v2",
-        "Standard_D5_v2",
-        "Standard_D11_v2",
-        "Standard_D12_v2",
-        "Standard_D13_v2",
-        "Standard_D14_v2",
-        "Standard_D15_v2",
-        "Standard_D2",
-        "Standard_D3",
-        "Standard_D4",
-        "Standard_D11",
-        "Standard_D12",
-        "Standard_D13",
-        "Standard_D14",
-        "Standard_DS1",
-        "Standard_DS2",
-        "Standard_DS3",
-        "Standard_DS4",
-        "Standard_DS11",
-        "Standard_DS12",
-        "Standard_DS13",
-        "Standard_DS14",
-        "Standard_DS2_v2",
-        "Standard_DS3_v2",
-        "Standard_DS4_v2",
-        "Standard_DS5_v2",
-        "Standard_DS11_v2",
-        "Standard_DS12_v2",
-        "Standard_DS13_v2",
-        "Standard_DS14_v2",
-        "Standard_DS15_v2"
-      ],
-      "metadata": {
-        "description": "Size of VM"
-      }
+      "defaultValue": "https://raw.githubusercontent.com/krishnand/mlsdistcomp/master/packages/mlsdistcomp_0.1.0.tar.gz",
+
     },
     "webAppSvcSkuName": {
       "type": "string",
@@ -162,288 +30,22 @@
       "metadata": {
         "description": "Describes plan's pricing tier and capacity. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
       }
+    },
+    "dnsLabelPrefix":{
+      "type": "string",
+      "defaultValue": "testFinDNS"
     }    
   },
   "variables": {
-    "addressPrefix": "10.0.0.0/16",
-    "imageOffer": "linux-data-science-vm-ubuntu",
-    "imagePublisher": "microsoft-ads",
-    "imageSku": "linuxdsvmubuntu",    
-    "networkSecurityGroupName": "[concat(parameters('dnsLabelPrefix'), 'nsg')]",
-    "nicName": "[concat(parameters('dnsLabelPrefix'), 'nic')]",
-    "publicIPAddressName": "[concat(parameters('dnsLabelPrefix'), 'publicip')]",    
     "pkgMLSWebApp": "[concat('https://raw.githubusercontent.com/krishnand/mlsdistcomp/master/packages/', toLower(parameters('deploymentProfile')), 'webapp.zip')]",
     "scriptUriSql": "[uri(deployment().properties.templateLink.uri, 'scripts/mlsdistcompmin.sql')]",    
     "scriptUriWebAppDeploy": "[uri(deployment().properties.templateLink.uri, 'scripts/webappdeploy.sh')]",
     "scriptUriMLSConfigure": "[uri(deployment().properties.templateLink.uri, 'scripts/mlsconfigure.sh')]",
     "scriptUriMLSBootstrapper": "[uri(deployment().properties.templateLink.uri, 'scripts/mlsdistcomp_bootstrapper.R')]",
-    "sqlDatabaseName": "mlsdistcompdb",
-    "sqlServerName": "[concat(parameters('dnsLabelPrefix'), 'sql', uniquestring(resourceGroup().id))]",
-    "storageAccountName": "[concat(parameters('dnsLabelPrefix'), 'sa', uniquestring(resourceGroup().id))]",
-    "subnetName": "Subnet",
-    "subnetPrefix": "10.0.0.0/24",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
-    "tenantId": "[subscription().tenantId]",
-    "virtualNetworkName": "[concat(parameters('dnsLabelPrefix'), 'vnet')]",
-    "vmName": "[parameters('dnsLabelPrefix')]",
     "webAppName": "[concat(parameters('dnsLabelPrefix'), 'webapp', uniqueString(resourceGroup().id))]",
     "webAppSvcPlanName": "[concat(parameters('dnsLabelPrefix'), 'appplan', uniqueString(resourceGroup().id))]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[variables('storageAccountName')]",
-      "apiVersion": "[providers('Microsoft.Storage','storageAccounts').apiVersions[0]]",
-      "location": "[resourceGroup().location]",
-      "sku": {
-        "name": "Standard_LRS"
-      },
-      "kind": "Storage",
-      "properties": {}
-    },
-    {
-      "apiVersion": "[providers('Microsoft.Network','publicIPAddresses').apiVersions[0]]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "idleTimeoutInMinutes": 30,
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
-        }
-      }
-    },
-    {
-      "apiVersion": "[providers('Microsoft.Network','networkSecurityGroups').apiVersions[0]]",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('networkSecurityGroupName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "Remote",
-            "properties": {
-              "description": "Allows Remote Desktop",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 101,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "WebNode",
-            "properties": {
-              "description": "Allows WebNode traffic",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "12800",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 102,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[providers('Microsoft.Network','virtualNetworks').apiVersions[0]]",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
-      ],
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('addressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('subnetPrefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[providers('Microsoft.Network','networkInterfaces').apiVersions[0]]",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
-              },
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[providers('Microsoft.Compute','virtualMachines').apiVersions[0]]",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
-      ],
-      "plan": {
-        "name": "[variables('imageSku')]",
-        "publisher": "[variables('imagePublisher')]",
-        "product": "[variables('imageOffer')]"
-      },
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSku')]"
-        },
-        "osProfile": {
-          "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[variables('imageSku')]",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "name": "datadisk1",
-              "lun": 0,
-              "vhd": {
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/datadisk1.vhd')]"
-              },
-              "caching": "None",
-              "createOption": "FromImage"
-            }
-          ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
-          }
-        }
-      },
-      "resources": [
-        {
-          "type": "extensions",
-          "name": "ConfigureMLSServer",
-          "apiVersion": "[providers('Microsoft.Compute','virtualMachines/extensions').apiVersions[0]]",
-          "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-          ],
-          "properties": {
-            "publisher": "Microsoft.OSTCExtensions",
-            "type": "CustomScriptForLinux",
-            "typeHandlerVersion": "1.4",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "fileUris": [
-                "[variables('scriptUriMLSConfigure')]"
-              ]
-            },
-            "protectedSettings": {
-              "commandToExecute": "[concat('bash mlsconfigure.sh \"', parameters('deploymentProfile'), '\" \"', variables('sqlServerName'), '\" \"', variables('sqlDatabaseName'), '\" \"',parameters('sqlserverAdminLogin'), '\" \"', parameters('sqlserverAdminPassword'), '\" \"', variables('scriptUriSql'), '\" \"', parameters('pkgMLSDistcomp'), '\" \"', variables('scriptUriMLSBootstrapper'), '\" \"', concat(variables('vmName'), '.', resourceGroup().location, '.cloudapp.azure.com'), '\" \"', parameters('adminPassword'), '\" \"', parameters('tenantName'), '\" \"', parameters('aadAppMLS'), '\" \"', parameters('aadAppMLSClient'), '\" \"', parameters('aadAppMLSClientSecret'), '\"')]"
-            }
-          }
-        }        
-      ]
-    },
-    {
-      "name": "[variables('sqlServerName')]",
-      "type": "Microsoft.Sql/servers",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2014-04-01-preview",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "MLSDistCompSqlServer"
-      },
-      "properties": {
-        "administratorLogin": "[parameters('sqlserverAdminLogin')]",
-        "administratorLoginPassword": "[parameters('sqlserverAdminPassword')]"
-      },
-      "resources": [
-        {
-          "name": "AllowAllWindowsAzureIps",
-          "type": "firewallrules",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2014-04-01-preview",
-          "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
-          ],
-          "properties": {
-            "startIpAddress": "0.0.0.0",
-            "endIpAddress": "0.0.0.0"
-          }
-        },
-        {
-          "name": "[variables('sqlDatabaseName')]",
-          "type": "databases",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2014-04-01-preview",
-          "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
-          ],
-          "tags": {
-            "displayName": "MLSDistCompDatabase"
-          },
-          "properties": {
-            "collation": "[parameters('sqlDatabaseNameCollation')]",
-            "edition": "[parameters('sqlDatabaseNameEdition')]",
-            "maxSizeBytes": "1073741824",
-            "requestedServiceObjectiveName": "[parameters('sqlDatabaseNameRequestedServiceObjectiveName')]"
-          },
-          "resources": [            
-          ]
-        }
-      ]
-    },
     {
       "name": "[variables('webAppSvcPlanName')]",
       "type": "Microsoft.Web/serverfarms",
@@ -506,23 +108,10 @@
             "displayName": "AppSettings"
           },
           "properties": {
-            "AzureAd__Instance": "https://login.microsoftonline.com/",
-            "AzureAd__Domain": "[parameters('tenantName')]",
-            "AzureAd__TenantId": "[variables('tenantId')]",
-            "AzureAd__CallbackPath": "/signin-oidc",
-            "AzureAd__ClientId": "[parameters('aadAppMLSClient')]",
-            "AzureAd__ClientSecret": "[parameters('aadAppMLSClientSecret')]",
-            "AzureAd__MRSDistCompResourceAppId": "[parameters('aadAppMLS')]",
-            "AzureAd__MRSDistCompBaseAddress": "[concat('http://', variables('vmName'), '.', resourceGroup().location, '.cloudapp.azure.com:12800')]"
+            "TestFinAppSetting1":"TestAppName"
           }
         }
       ]
     }
-  ],
-  "outputs": {
-    "hostname": {
-      "type": "string",
-      "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
-    }
-  }
+  ]
 }
